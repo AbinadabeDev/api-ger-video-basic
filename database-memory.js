@@ -3,17 +3,18 @@ import { randomUUID } from "crypto"
 export class DatabaseMemory {
     #videos = new Map()
 
-    list() {
-        return Array.from(this.#videos.entries()).map((videoArray) => {
-            const id = videoArray[0]
-            const data = videoArray[1]
-
-            return {
-                id,
-                ...data
-            }
-        })
+    list(search) {
+        return Array.from(this.#videos.entries())
+            .map(([id, data]) => ({ id, ...data })) // Cria um array de objetos de vídeo
+            .filter((video) => {
+                if (typeof search === "string" && search.trim() !== "") {
+                    return video.title.toLowerCase().includes(search.toLowerCase());
+                }
+                return true; // Retorna todos os vídeos se search não for uma string válida
+            });
     }
+    
+    
 
     create(video) {
         const videoId = randomUUID()
