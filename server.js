@@ -19,16 +19,13 @@ server.post('/videos', (request, reply) => {
     return reply.status(201).send()
 })
 
-server.get('/videos', (request) => {
-    const { search } = request.query; // Extrai apenas o parâmetro 'search'
-    
-    console.log(search);
-    
-    const videos = database.list(search || ""); // Garante que search seja uma string
-    
-    return videos;
-});
+server.get('/videos', () => {
+    const videos = database.list()
 
+    console.log(videos)
+    
+    return  videos
+ })
 
 server.put('/videos/:id', (request, reply) => {
     const videoId = request.params.id
@@ -48,9 +45,9 @@ server.delete('/videos/:id', () => {
 
     database.delete(videoId)
 
-    return reply.status(204).send()
+    return reply.status(204).send() 
 })
 
 server.listen({
-    port: 3333,
+    port: process.env.PORT ?? 3333,
 })
