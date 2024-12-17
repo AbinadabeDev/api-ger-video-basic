@@ -32,8 +32,6 @@ A API permite:
     ```bash
     npm start
 
-5. Acesse a API em: http://localhost:3000 (ou outra porta configurada).
-
 ## Aprendizado
 
 Este projeto foi desenvolvido para reforçar os seguintes conceitos:
