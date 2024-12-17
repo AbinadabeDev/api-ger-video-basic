@@ -1,53 +1,63 @@
 import { fastify } from "fastify";
-import { DatabaseMemory } from './database-memory.js'
+//import { DatabaseMemory } from './database-memory.js'
+import { DatabasePostgres } from "./database-postgres.js";
 
 const server = fastify();
 
-const database = new DatabaseMemory()
+//const database = new DatabaseMemory()
+const database = new DatabasePostgres();
 
-server.post('/videos', (request, reply) => {
-    const { title, description, duration } = request.body
+server.post('/videos', async (request, reply) => {
+    const { title, description, duration } = request.body;
 
-    database.create({
+    await database.create({
         title,
         description,
         duration,
-    })
+    });
 
-    console.log(database.list())
+    const videos = await database.list();
+    console.log(videos);
 
-    return reply.status(201).send()
-})
+    return reply.status(201).send();
+});
 
-server.get('/videos', () => {
-    const videos = database.list()
+server.get('/videos', async (request) => {
+    const search = request.query.search;
+    const videos = await database.list(search);
 
-    console.log(videos)
-    
-    return  videos
- })
+    return videos;
+});
 
-server.put('/videos/:id', (request, reply) => {
-    const videoId = request.params.id
-    const { title, description, duration } = request.body
+server.put('/videos/:id', async (request, reply) => {
+    try {
+        const videoId = request.params.id;
+        console.log('Video ID: ', videoId);
 
-    database.update(videoId, {
-        title,
-        description,
-        duration,
-    })
+        const { title, description, duration } = request.body;
+        console.log('Request Body: ', { title, description, duration });
 
-    return reply.status(204).send()
-})
+        await database.update(videoId, {
+            title,
+            description,
+            duration,
+        });
 
-server.delete('/videos/:id', () => {
-    const videoId = request.params.id
+        return reply.status(204).send();
+    } catch (error) {
+        console.error('Erro ao atualizar o vídeo: ', error);
+        return reply.status(500).send({ error: 'Erro interno no servidor!' });
+    }
+});
 
-    database.delete(videoId)
+server.delete('/videos/:id', (request, reply) => {
+    const videoId = request.params.id;
 
-    return reply.status(204).send() 
-})
+    database.delete(videoId);
+
+    return reply.status(204).send();
+});
 
 server.listen({
     port: process.env.PORT ?? 3333,
-})
+});
